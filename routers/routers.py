@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from models.movie import Movie as MovieModel
 from middlewares.jwt_bearer import JWTBearer
 from config.database import Session
-
+from services.movies import MovieService
 
 movie_router = APIRouter()
 
@@ -39,14 +39,14 @@ class Movies(BaseModel):
          status_code=200, dependencies=[Depends(JWTBearer())])
 def get_all_movies() -> List[Movies]:
     db = Session()
-    result = db.query(MovieModel).all()
+    result = MovieService(db).get_movies()
     return JSONResponse(status_code=200, content=result)
 
 @movie_router.get('/movies/{id}', tags=['movies'])
 def get_movie(id: int = Path(ge=1, le=2000)) -> Movies:
     db = Session()
-    result = db.query(MovieModel).filter(MovieModel.id==id).first()
-    
+    result = MovieService(db).get_movie(id)
+
     if not result:
         return JSONResponse(status_code=404, content={'message':'Movie not found'})
 
@@ -57,7 +57,7 @@ def get_movie_by_category(category: str = Query(min_length=5,
                           max_length=15)) -> List[Movies]:
     
     db = Session()
-    result = db.query(MovieModel).filter(MovieModel.category==category).all()
+    result = MovieService(db).get_movie_by_category(category)
 
     #movies_by_category = filter(lambda y: y['category'].lower() == category 
     #                            , movies)
