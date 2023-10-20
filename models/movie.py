@@ -6,7 +6,7 @@ class Movie(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String)
-    overview = Column(String)
+    overview = Column(String(2000))
     year = Column(Integer)
     rating = Column(Float)
     category = Column(String)
